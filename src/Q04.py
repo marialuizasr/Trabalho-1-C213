@@ -20,24 +20,8 @@ n_pade = 20
 H_pade = cnt.tf( num_pade , den_pade )
 Hs = cnt.series (H , H_pade)
 
-# Controlador proporcional
-numkp = np. array ([kp])
-denkp = np. array ([1])
-#integral
-numki = np. array ([kp])
-denki = np. array ([Ti,0])
-#derivativo
-numkd = np. array ([kp*Td,0])
-denkd = np. array ([1])
-#Construindo o controlador PID
-Hkp = cnt.tf(numkp , denkp)
-Hki=cnt.tf(numki , denki)
-Hkd=cnt.tf(numkd , denkd)
-Hctrl1 = cnt.parallel (Hkp , Hki)
-Hctrl = cnt.parallel (Hctrl1 , Hkd)
-Hdel = cnt.series (Hs , Hctrl)
 #Fazendo a realimentação
-Hcl = cnt.feedback(Hdel, 1)
+Hcl = cnt.feedback(Hs, 1)
 
 #Plotando em malha aberta
 t = np . linspace (0 , 40 , 100)
