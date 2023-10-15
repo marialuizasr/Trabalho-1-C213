@@ -26,7 +26,7 @@ t = np . linspace (0 , 40 , 100)
 plt.subplot(1,2,1)
 plt.plot (t , y )
 plt.xlabel ( ' t [ s ] ')
-plt.title('Malha aberta')
+plt.title('Estimada')
 plt.grid ()
 
 # Original

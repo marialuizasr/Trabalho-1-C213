@@ -6,9 +6,13 @@ k=2
 tau=4.995
 Theta = 1.975 # atraso de propagação
 #parâmetros do controlador kp+kp/(Ti*s)+kp*Td*s
-kp=1.5
-Ti=4.2
-Td=0.67
+kpCC=1.5
+TiCC=4.2
+TdCC=0.67
+
+kpIMC=1.082
+TiIMC=4.932
+TdIMC=0.824
 
 
 #escrevendo a função de transferência da planta
@@ -20,33 +24,67 @@ n_pade = 20
 H_pade = cnt.tf( num_pade , den_pade )
 Hs = cnt.series (H , H_pade)
 
-# Controlador proporcional
-numkp = np. array ([kp])
-denkp = np. array ([1])
+# Controlador proporcional - IMC
+numkpIMC = np. array ([kpIMC])
+denkpIMC = np. array ([1])
 #integral
-numki = np. array ([kp])
-denki = np. array ([Ti,0])
+numkiIMC = np. array ([kpIMC])
+denkiIMC = np. array ([TiIMC,0])
 #derivativo
-numkd = np. array ([kp*Td,0])
-denkd = np. array ([1])
+numkdIMC = np. array ([kpIMC*TdIMC,0])
+denkdIMC = np. array ([1])
 #Construindo o controlador PID
-Hkp = cnt.tf(numkp , denkp)
-Hki=cnt.tf(numki , denki)
-Hkd=cnt.tf(numkd , denkd)
-Hctrl1 = cnt.parallel (Hkp , Hki)
-Hctrl = cnt.parallel (Hctrl1 , Hkd)
-Hdel = cnt.series (Hs , Hctrl)
+HkpIMC = cnt.tf(numkpIMC , denkpIMC)
+HkiIMC=cnt.tf(numkiIMC , denkiIMC)
+HkdIMC=cnt.tf(numkdIMC , denkdIMC)
+Hctrl1IMC = cnt.parallel (HkpIMC , HkiIMC)
+HctrlIMC = cnt.parallel (Hctrl1IMC , HkdIMC)
+HdelIMC = cnt.series (Hs , HctrlIMC)
 #Fazendo a realimentação
-Hcl = cnt.feedback(Hdel, 1)
+HclIMC = cnt.feedback(HdelIMC, 1)
 
 
-t = np . linspace (0 , 40 , 100)
-(t , y ) = cnt.step_response ( Hcl, t )
+# Controlador proporcional - Cohen Coon
+numkpCC = np. array ([kpCC])
+denkpCC = np. array ([1])
+#integral
+numkiCC = np. array ([kpCC])
+denkiCC = np. array ([TiCC,0])
+#derivativo
+numkdCC = np. array ([kpCC*TdCC,0])
+denkdCC = np. array ([1])
+#Construindo o controlador PID
+HkpCC = cnt.tf(numkpCC , denkpCC)
+HkiCC=cnt.tf(numkiCC , denkiCC)
+HkdCC=cnt.tf(numkdCC , denkdCC)
+Hctrl1CC = cnt.parallel (HkpCC , HkiCC)
+HctrlCC = cnt.parallel (Hctrl1CC , HkdCC)
+HdelCC = cnt.series (Hs , HctrlCC)
+#Fazendo a realimentação
+HclCC = cnt.feedback(HdelCC, 1)
 
-plt.plot (t , y )
+#IMC
+tIMC = np . linspace (0 , 40 , 100)
+(tIMC , yIMC ) = cnt.step_response ( HclIMC, tIMC )
+
+plt.subplot(1,2,1)
+plt.plot (tIMC , yIMC )
+plt.xlabel ( ' t [ s ] ')
+plt.ylabel('Amplitude')
+plt.title('IMC')
+plt.grid ()
+
+#Cohen Coon
+tCC = np . linspace (0 , 40 , 100)
+(tCC , yCC ) = cnt.step_response ( HclCC, tCC )
+
+plt.subplot(1,2,2)
+plt.plot (tCC , yCC )
 plt.xlabel ( ' t [ s ] ')
 plt.ylabel('Amplitude')
 plt.title('Choen Coon')
 plt.grid ()
+
+
 
 plt.show()
